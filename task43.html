@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SolarSmart</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+      color: #333;
+    }
+    h1, h2 {
+      text-align: center;
+      color: #2b6f3e;
+    }
+    .container {
+      width: 90%;
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 20px;
+      background: #2b6f3e;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    .result-box {
+      margin-top: 20px;
+      padding: 20px;
+      background: #e8f5e9;
+      border-left: 5px solid #2b6f3e;
+      border-radius: 5px;
+    }
+    canvas {
+      width: 100% !important;
+      max-height: 300px;
+    }
+  </style>
+</head>
+<body>
+  <h1>SolarSmart</h1>
+  <h2>Estimate Solar Energy, Savings & Environmental Impact</h2>
+
+  <div class="container">
+    <h2>Enter Household & Solar Details</h2>
+
+    <label>Monthly Energy Consumption (kWh)</label>
+    <input id="energy" type="number" placeholder="e.g., 300" />
+
+    <label>Location</label>
+    <select id="location">
+      <option value="5.5">Hyderabad (5.5 sunlight hours)</option>
+      <option value="6">Rajasthan (6 hours)</option>
+      <option value="4.5">Kerala (4.5 hours)</option>
+      <option value="5">Delhi (5 hours)</option>
+    </select>
+
+    <label>Solar Panel Capacity (kW)</label>
+    <input id="capacity" type="number" placeholder="e.g., 2" />
+
+    <button onclick="calculate()">Calculate</button>
+
+    <div id="results" class="result-box" style="display:none"></div>
+
+    <h2>Charts</h2>
+    <canvas id="energyChart"></canvas>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    function calculate() {
+      const energy = parseFloat(document.getElementById('energy').value);
+      const sunlight = parseFloat(document.getElementById('location').value);
+      const capacity = parseFloat(document.getElementById('capacity').value);
+
+      if (!energy || !capacity) {
+        alert("Please enter all values.");
+        return;
+      }
+
+      const dailyProduction = capacity * sunlight;
+      const monthlyProduction = dailyProduction * 30;
+
+      const costPerKwh = 8;
+      const savings = monthlyProduction * costPerKwh;
+
+      const carbonSaved = monthlyProduction * 0.7;
+
+      document.getElementById('results').style.display = 'block';
+      document.getElementById('results').innerHTML = `
+        <h3>Estimated Results</h3>
+        <p><b>Monthly Solar Energy Production:</b> ${monthlyProduction.toFixed(1)} kWh</p>
+        <p><b>Estimated Cost Savings:</b> ₹${savings.toFixed(2)} / month</p>
+        <p><b>Carbon Emissions Reduced:</b> ${carbonSaved.toFixed(1)} kg CO₂/month</p>
+      `;
+
+      updateChart(energy, monthlyProduction);
+    }
+
+    let chart;
+    function updateChart(consumption, production) {
+      const ctx = document.getElementById('energyChart');
+
+      if (chart) chart.destroy();
+
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Consumption', 'Solar Production'],
+          datasets: [{
+            label: 'kWh per Month',
+            data: [consumption, production],
+          }]
+        }
+      });
+    }
+  </script>
+</body>
+</html>
